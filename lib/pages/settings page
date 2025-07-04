@@ -1,0 +1,297 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../providers/language_provider.dart';
+
+class SettingsPage extends StatelessWidget {
+    const SettingsPage({Key? key}) : super(key: key);
+
+    void _changeLanguage(BuildContext context) {
+      final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+      final currentLang = Provider.of<LanguageProvider>(context, listen: false).language;
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: const Color(0xFF1D503A),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.language, color: Color(0xFFFAF5EE), size: 40),
+              const SizedBox(height: 16),
+                Text(
+                currentLang == 'Swahili' ? 'Chagua lugha' : 'Select Language',
+                style: const TextStyle(
+                  color: Color(0xFFFAF5EE),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+                ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: const Text('English', style: TextStyle(color: Color(0xFFFAF5EE))),
+                leading: Icon(
+                  currentLang == 'English'
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
+                  color: Color(0xFFFAF5EE),
+                ),
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  langProvider.setLanguage('English');
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('English selected')),
+                  );
+                },
+              ),
+              ListTile(
+                title: const Text('Swahili', style: TextStyle(color: Color(0xFFFAF5EE))),
+                leading: Icon(
+                  currentLang == 'Swahili'
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
+                  color: Color(0xFFFAF5EE),
+                ),
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  langProvider.setLanguage('Swahili');
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Kiswahili kimechaguliwa')),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    void _donate(BuildContext context) {
+        showModalBottomSheet(
+            context: context,
+            backgroundColor: const Color(0xFF1D503A),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.computer, color: Color(0xFFFAF5EE), size: 40),
+                  const SizedBox(height: 16),
+                    Text(
+                    Provider.of<LanguageProvider>(context).language == 'Swahili'
+                      ? 'Mfate mtenengenezaji?'
+                      : 'Follow the Developer?',
+                    style: const TextStyle(
+                      color: Color(0xFFFAF5EE),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                    ),
+                  const SizedBox(height: 12),
+                    Text(
+                    Provider.of<LanguageProvider>(context).language == 'Swahili'
+                      ? 'Mfumo huu wa biblia utabaki kuwa bure na bila matangazo, tembelea social media zetu utufollow na bonyeza link iliyokwenye bio. Tafadhali usisahau kutembelea accounts zetu kwa maelezo zaidi kuhusu mtengezi na mipango ya baadaye.'
+                      : 'The minimalist bible app is free and will always be free. However, if you would like to support the developer, you can do so by visiting our social medias and clicking the link in the bio. your support will help keep the app running and improve its features.',
+                    style: const TextStyle(
+                      color: Color(0xFFFAF5EE),
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                    ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFFAF5EE),
+                      foregroundColor: Color(0xFF1D503A),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    icon: Icon(Icons.computer,),
+                    label: Text(
+                      Provider.of<LanguageProvider>(context).language == 'Swahili'
+                        ? 'Tufuate'
+                        : 'Follow us',
+                    ),
+                    onPressed: () async {
+                      HapticFeedback.mediumImpact();
+                      const url = 'https://www.tiktok.com/@smartalleni?_t=ZS-8wGTJqutvNK&_r=1';
+                      if (await canLaunchUrl(Uri.parse(url))) {
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              Provider.of<LanguageProvider>(context, listen: false).language == 'Swahili'
+                                ? 'Imeshindikana kufungua kiungo!'
+                                : 'Could not launch the link!',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+        );
+    }
+
+    void _about(BuildContext context) {
+        showModalBottomSheet(
+            context: context,
+            backgroundColor: const Color(0xFF1D503A),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            builder: (context) => Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                        Icon(Icons.info_outline, color: Color(0xFFFAF5EE), size: 40),
+                        const SizedBox(height: 16),
+                        const Text(
+                            'M I N I M A L  B I B L E',
+                            style: TextStyle(
+                                color: Color(0xFFFAF5EE),
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                            ),
+                        ),
+                        const SizedBox(height: 8),
+                        Consumer<LanguageProvider>(
+                          builder: (context, langProvider, child) {
+                          final isSwahili = langProvider.language == 'Swahili';
+                          return Text(
+                            isSwahili
+                              ? 'Toleo 1.00\n Hii ni biblia ya lugha mbili ya toleo la swahili edition, lugha isiwe kikwazo kwa kutupeleka neno la mungu kwa wahitaji'
+                              : 'Version 1.0.0\n This app is a bilingual king james version bible app that lets you enjoy the word of God in a minimal manner without lots of destructions',
+                            style: const TextStyle(
+                            color: Color(0xFFFAF5EE),
+                            fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          );
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                            '© 2025 Allens',
+                            style: TextStyle(
+                                color: Color(0xFFFAF5EE),
+                                fontSize: 14,
+                            ),
+                        ),
+                        const SizedBox(height: 16),
+                    ],
+                ),
+            ),
+        );
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            backgroundColor: const Color(0xFF1D503A),
+            appBar: AppBar(
+                title: Consumer<LanguageProvider>(
+                  builder: (context, langProvider, child) {
+                  final isSwahili = langProvider.language == 'Swahili';
+                  return Text(
+                    isSwahili ? 'M I P A N G I L I O' : 'S E T T I N G S',
+                  );
+                  },
+                ),
+                backgroundColor: const Color(0xFF1D503A),
+                foregroundColor: const Color(0xFFFAF5EE),
+            ),
+            body: SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        Consumer<LanguageProvider>(
+                          builder: (context, langProvider, child) {
+                          final isSwahili = langProvider.language == 'Swahili';
+                          return ListTile(
+                            title: Text(
+                            isSwahili
+                              ? 'B A D I L I  L U G H A'
+                              : 'C H A N G E  L A N G U A G E',
+                            style: const TextStyle(color: Color(0xFFFAF5EE)),
+                            ),
+                            trailing: const Icon(Icons.language, color: Color(0xFFFAF5EE)),
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              _changeLanguage(context);
+                            },
+                          );
+                          },
+                        ),
+                        ListTile(
+                          title: Consumer<LanguageProvider>(
+                          builder: (context, langProvider, child) {
+                            final isSwahili = langProvider.language == 'Swahili';
+                            return Text(
+                            isSwahili
+                            ? 'K U H U S U  M T E N E G E Z A J I'
+                            : 'A B O U T  T H E  D E V E L O P E R',
+                            style: const TextStyle(color: Color(0xFFFAF5EE)),
+                            );
+                          },
+                          ),
+                          trailing: const Icon(Icons.computer, color: Color(0xFFFAF5EE)),
+                          onTap: () {
+                          HapticFeedback.mediumImpact();
+                          _donate(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: ListTile(
+                        title: Consumer<LanguageProvider>(
+                        builder: (context, langProvider, child) {
+                          final isSwahili = langProvider.language == 'Swahili';
+                          return Text(
+                          isSwahili ? 'K U H U S U' : 'A B O U T',
+                          style: const TextStyle(color: Color(0xFFFAF5EE)),
+                          );
+                        },
+                        ),
+                      trailing: const Icon(Icons.info_outline, color: Color(0xFFFAF5EE)),
+                        onTap: () {
+                        HapticFeedback.mediumImpact();
+                        _about(context);
+                        },
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Color(0xFFFAF5EE), width: 2),
+                        borderRadius: BorderRadius.circular(24), // More rounded
+                      ),
+                      tileColor: Colors.transparent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        );
+    }
+}
