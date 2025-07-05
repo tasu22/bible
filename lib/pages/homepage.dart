@@ -23,7 +23,7 @@ class _BookListSkeleton extends StatelessWidget {
             child: Container(
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withAlpha(51),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),

@@ -21,14 +21,14 @@ class _VerseListSkeleton extends StatelessWidget {
               Container(
                 width: 3,
                 height: 24,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withAlpha(51),
                 margin: const EdgeInsets.only(right: 8.0, top: 2.0),
               ),
               Expanded(
                 child: Container(
                   height: 18,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withAlpha(51),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -321,7 +321,7 @@ class _BookPageState extends State<BookPage> {
                                       width: 120,
                                       height: 22,
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.1),
+                                        color: Colors.white.withAlpha(51),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),

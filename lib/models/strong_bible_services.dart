@@ -31,8 +31,9 @@ class StrongBibleService {
   }
 
   static Future<List<int>> getChaptersForBook(String bookName) async {
-    if (_cachedChapters.containsKey(bookName))
+    if (_cachedChapters.containsKey(bookName)) {
       return _cachedChapters[bookName]!;
+    }
     final verses = await _loadVerses();
     final chapterSet = <int>{};
     for (var verse in verses) {

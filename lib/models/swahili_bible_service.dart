@@ -26,8 +26,9 @@ class SwahiliBibleService {
   }
 
   static Future<List<int>> getChapters(String bookName) async {
-    if (_cachedChapters.containsKey(bookName))
+    if (_cachedChapters.containsKey(bookName)) {
       return _cachedChapters[bookName]!;
+    }
     final data = await _loadData();
     final book = (data['BIBLEBOOK'] as List<dynamic>).firstWhere(
       (b) => b['book_name'] == bookName,
