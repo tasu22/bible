@@ -9,6 +9,29 @@ import 'package:bible/providers/language_provider.dart';
 import '../models/swahili_bible_service.dart';
 import 'settings page'; // <-- Add this import
 
+class _BookListSkeleton extends StatelessWidget {
+  final int count;
+  const _BookListSkeleton({this.count = 10});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: count,
+      itemBuilder:
+          (context, index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+    );
+  }
+}
+
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
@@ -71,7 +94,11 @@ class _HomepageState extends State<Homepage> {
     return canonicalOrder.where((b) => books.contains(b)).toList();
   }
 
-  Widget _buildBookList(String title, List<String> books) {
+  Widget _buildBookList(
+    String title,
+    List<String> books, {
+    bool loading = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -89,35 +116,38 @@ class _HomepageState extends State<Homepage> {
         ),
         SizedBox(height: 8),
         Expanded(
-          child: ListView.builder(
-            itemCount: books.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
-                child: CustomOutlinedButton(
-                  onPressed: () {
-                    FocusScope.of(
-                      context,
-                    ).unfocus(); // Dismiss keyboard before navigation
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookPage(bookName: books[index]),
-                      ),
-                    );
-                  },
-                  borderColor: Color(0xFFFAF5EE),
-                  child: Text(
-                    books[index],
-                    style: TextStyle(color: Color(0xFFFAF5EE)),
+          child:
+              loading
+                  ? _BookListSkeleton(count: 10)
+                  : ListView.builder(
+                    itemCount: books.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
+                        child: CustomOutlinedButton(
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        BookPage(bookName: books[index]),
+                              ),
+                            );
+                          },
+                          borderColor: Color(0xFFFAF5EE),
+                          child: Text(
+                            books[index],
+                            style: TextStyle(color: Color(0xFFFAF5EE)),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -364,7 +394,35 @@ class _HomepageState extends State<Homepage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Expanded(
-                    child: Center(child: CircularProgressIndicator()),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildBookList(
+                            isSwahili
+                                ? 'A G A N O  L A  K A L E'
+                                : 'O L D  T E S T A M E N T',
+                            [],
+                            loading: true,
+                          ),
+                        ),
+                        VerticalDivider(
+                          color: const Color(0xFFFAF5EE),
+                          thickness: 1.5,
+                          width: 32,
+                          indent: 16,
+                          endIndent: 16,
+                        ),
+                        Expanded(
+                          child: _buildBookList(
+                            isSwahili
+                                ? 'A G A N O  J I P Y A'
+                                : 'N E W  T E S T A M E N T',
+                            [],
+                            loading: true,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 } else if (snapshot.hasError) {
                   return Expanded(

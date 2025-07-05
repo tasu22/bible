@@ -1,9 +1,45 @@
+import '../providers/language_provider.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/strong_bible_services.dart';
 import '../models/swahili_bible_service.dart';
-import '../providers/language_provider.dart';
+
+class _VerseListSkeleton extends StatelessWidget {
+  final int count;
+  const _VerseListSkeleton({this.count = 5});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(
+        count,
+        (i) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 32.0),
+          child: Row(
+            children: [
+              Container(
+                width: 3,
+                height: 24,
+                color: Colors.white.withOpacity(0.2),
+                margin: const EdgeInsets.only(right: 8.0, top: 2.0),
+              ),
+              Expanded(
+                child: Container(
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class BookPage extends StatefulWidget {
   final String bookName;
@@ -85,11 +121,19 @@ class _BookPageState extends State<BookPage> {
     return false;
   }
 
+  // Simple in-memory cache for filtered verses
+  final Map<String, Map<int, List<String>>> _filteredVersesCache = {};
+
   Future<Map<int, List<String>>> _getFilteredVersesForChapters(
     List<int> chapters,
   ) async {
     final langProvider = Provider.of<LanguageProvider>(context, listen: false);
     final isSwahili = langProvider.isSwahili;
+    final cacheKey =
+        '${widget.bookName}|${isSwahili ? 'sw' : 'en'}|$_chapterQuery|$_verseQuery';
+    if (_filteredVersesCache.containsKey(cacheKey)) {
+      return _filteredVersesCache[cacheKey]!;
+    }
 
     final Map<int, List<String>> filteredMap = {};
 
@@ -123,6 +167,7 @@ class _BookPageState extends State<BookPage> {
       }
     }
 
+    _filteredVersesCache[cacheKey] = filteredMap;
     return filteredMap;
   }
 
@@ -257,10 +302,35 @@ class _BookPageState extends State<BookPage> {
                     future: _getFilteredVersesForChapters(chapters),
                     builder: (context, filteredSnapshot) {
                       if (!filteredSnapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFFFAF5EE),
-                          ),
+                        // Show skeletons for each chapter
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          itemCount: chapters.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 24.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                      vertical: 8.0,
+                                    ),
+                                    child: Container(
+                                      width: 120,
+                                      height: 22,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                  ),
+                                  const _VerseListSkeleton(count: 5),
+                                ],
+                              ),
+                            );
+                          },
                         );
                       }
 
