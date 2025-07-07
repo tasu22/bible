@@ -98,7 +98,7 @@ flutter_native_splash:
     image: assets/images/biblesplash.png
 
     android_12:
-      image: assets/images/android.png
+      image: assets/images/appp.png
       color: "#1D503A"
       icon_background_color: "#1D503A"
 

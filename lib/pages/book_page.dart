@@ -289,7 +289,7 @@ class _BookPageState extends State<BookPage> {
                     return Center(
                       child: Text(
                         langProvider.isSwahili
-                            ? 'Hakuna hicho kitabu.'
+                            ? 'Hakuna  vitabu.'
                             : 'No chapters found.',
                         style: const TextStyle(color: Color(0xFFFAF5EE)),
                       ),
@@ -414,6 +414,7 @@ class _BookPageState extends State<BookPage> {
                                             cleanText,
                                             style: const TextStyle(
                                               color: Color(0xFFFAF5EE),
+                                              fontSize: 18,
                                             ),
                                           ),
                                         ),
