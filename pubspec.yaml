@@ -98,7 +98,7 @@ flutter_native_splash:
     image: assets/images/biblesplash.png
 
     android_12:
-      image: assets/images/androidapp.png
+      image: assets/images/android.png
       color: "#1D503A"
       icon_background_color: "#1D503A"
 
@@ -107,17 +107,16 @@ icons_launcher:
   platforms:
     android:
       enable: true
-      image_path: "assets/images/androidapplogo.png"
-      notification_image: "assets/images/androidapplogo.png"
+      image_path: "assets/images/appp.png"
+      notification_image: "assets/images/appp.png"
       # adaptive_background_color: '#ffffff'
-      adaptive_background_image: "assets/images/androidapp.png"
-      adaptive_foreground_image: "assets/images/androidapp.png"
-      adaptive_round_image: "assets/images/androidapp.png"
-      adaptive_monochrome_image: "assets/images/androidapp.png"
+      adaptive_background_image: "assets/images/appp.png"
+      adaptive_foreground_image: "assets/images/appp.png"
+      adaptive_round_image: "assets/images/appp.png"
+      adaptive_monochrome_image: "assets/images/appp.png"
     ios:
       enable: true
       alpha: false
       image_path: "assets/images/applogo.png"
       # For iOS 18+ (support dark and tinted)
-      
       tinted_path: "assets/images/applogo.png"
