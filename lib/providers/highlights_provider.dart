@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/highlight.dart';
 
 class HighlightsProvider with ChangeNotifier {
@@ -12,11 +12,12 @@ class HighlightsProvider with ChangeNotifier {
     _loadHighlights();
   }
 
-  Future<void> _loadHighlights() async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String>? saved = prefs.getStringList(_storageKey);
+  void _loadHighlights() {
+    final box = Hive.box('highlights');
+    final saved = box.get(_storageKey);
     if (saved != null) {
-      _highlights = saved.map((s) => Highlight.fromJson(s)).toList();
+      final List<String> savedList = List<String>.from(saved);
+      _highlights = savedList.map((s) => Highlight.fromJson(s)).toList();
       notifyListeners();
     }
   }
@@ -54,9 +55,9 @@ class HighlightsProvider with ChangeNotifier {
     _persistHighlights();
   }
 
-  Future<void> _persistHighlights() async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> encoded = _highlights.map((h) => h.toJson()).toList();
-    await prefs.setStringList(_storageKey, encoded);
+  void _persistHighlights() {
+    final box = Hive.box('highlights');
+    final encoded = _highlights.map((h) => h.toJson()).toList();
+    box.put(_storageKey, encoded);
   }
 }

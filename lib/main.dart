@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/homepage.dart';
 import 'providers/language_provider.dart';
 import 'providers/settings_provider.dart';
@@ -9,9 +10,17 @@ import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  await Hive.initFlutter();
+
+  // Open Hive boxes
+  await Hive.openBox('settings');
+  await Hive.openBox('highlights');
+
   final languageProvider = LanguageProvider();
-  await languageProvider.loadLanguage(); // Make sure this is public and async
-  WidgetsFlutterBinding.ensureInitialized();
+  languageProvider.loadLanguage(); // Make sure this is public
+
   // Keep status bar visible, hide only the navigation bar (home indicator)
   await SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
@@ -45,7 +54,6 @@ class MyApp extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return MaterialApp(
-          title: 'B I B L E',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.getLightTheme(),
           darkTheme: AppTheme.getDarkTheme(),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class SettingsProvider with ChangeNotifier {
   double _fontSize = 18.0;
@@ -14,19 +14,10 @@ class SettingsProvider with ChangeNotifier {
     _loadSettings();
   }
 
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final savedSize = prefs.getDouble('font_size');
-    if (savedSize != null && savedSize != _fontSize) {
-      _fontSize = savedSize;
-    }
-
-    final savedDarkMode = prefs.getBool('is_dark_mode');
-    if (savedDarkMode != null) {
-      _isDarkMode = savedDarkMode;
-    }
-
+  void _loadSettings() {
+    final box = Hive.box('settings');
+    _fontSize = box.get('font_size', defaultValue: 18.0);
+    _isDarkMode = box.get('is_dark_mode', defaultValue: true);
     notifyListeners();
   }
 
@@ -44,13 +35,11 @@ class SettingsProvider with ChangeNotifier {
     _persistTheme(_isDarkMode);
   }
 
-  Future<void> _persistFontSize(double size) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('font_size', size);
+  void _persistFontSize(double size) {
+    Hive.box('settings').put('font_size', size);
   }
 
-  Future<void> _persistTheme(bool isDark) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_dark_mode', isDark);
+  void _persistTheme(bool isDark) {
+    Hive.box('settings').put('is_dark_mode', isDark);
   }
 }
