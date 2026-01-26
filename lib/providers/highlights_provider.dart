@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/highlight.dart';
+import '../constants/bible_constants.dart';
 
 class HighlightsProvider with ChangeNotifier {
   List<Highlight> _highlights = [];
@@ -28,16 +29,37 @@ class HighlightsProvider with ChangeNotifier {
     String verseNumber,
     bool isSwahili,
   ) {
-    return _highlights.any(
-      (h) =>
-          h.bookName == bookName &&
+    // Normalizing book names to English for comparison ensures highlights sync across languages
+    final currentBookEn = BibleConstants.getBookName(bookName, false);
+
+    return _highlights.any((h) {
+      final highlightBookEn = BibleConstants.getBookName(h.bookName, false);
+      return highlightBookEn == currentBookEn &&
           h.chapter == chapter &&
-          h.verseNumber == verseNumber &&
-          h.isSwahili == isSwahili,
-    );
+          h.verseNumber == verseNumber;
+    });
   }
 
   void toggleHighlight(Highlight highlight) {
+    final targetBookEn = BibleConstants.getBookName(highlight.bookName, false);
+
+    final index = _highlights.indexWhere((h) {
+      final hBookEn = BibleConstants.getBookName(h.bookName, false);
+      return hBookEn == targetBookEn &&
+          h.chapter == highlight.chapter &&
+          h.verseNumber == highlight.verseNumber;
+    });
+
+    if (index >= 0) {
+      _highlights.removeAt(index);
+    } else {
+      _highlights.add(highlight);
+    }
+    notifyListeners();
+    _persistHighlights();
+  }
+
+  void updateNote(Highlight highlight, String note) {
     final index = _highlights.indexWhere(
       (h) =>
           h.bookName == highlight.bookName &&
@@ -47,12 +69,10 @@ class HighlightsProvider with ChangeNotifier {
     );
 
     if (index >= 0) {
-      _highlights.removeAt(index);
-    } else {
-      _highlights.add(highlight);
+      _highlights[index] = _highlights[index].copyWith(note: note);
+      notifyListeners();
+      _persistHighlights();
     }
-    notifyListeners();
-    _persistHighlights();
   }
 
   void _persistHighlights() {

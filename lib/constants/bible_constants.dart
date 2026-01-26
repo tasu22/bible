@@ -142,4 +142,27 @@ class BibleConstants {
     'Yuda',
     'Ufunuo wa Yohana',
   ];
+
+  static String getBookName(String currentName, bool toSwahili) {
+    // Combine lists for searching
+    final enList = [...oldTestamentOrderEn, ...newTestamentOrderEn];
+    final swList = [...oldTestamentOrderSw, ...newTestamentOrderSw];
+
+    if (toSwahili) {
+      final index = enList.indexOf(currentName);
+      if (index != -1 && index < swList.length) {
+        return swList[index];
+      }
+      // Fallback: Check if it's already Swahili by searching swList
+      if (swList.contains(currentName)) return currentName;
+    } else {
+      final index = swList.indexOf(currentName);
+      if (index != -1 && index < enList.length) {
+        return enList[index];
+      }
+      // Fallback: Check if it's already English
+      if (enList.contains(currentName)) return currentName;
+    }
+    return currentName;
+  }
 }

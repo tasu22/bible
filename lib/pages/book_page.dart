@@ -95,26 +95,19 @@ class _BookPageState extends State<BookPage> {
     final langProvider = Provider.of<LanguageProvider>(context, listen: false);
     final isSwahili = langProvider.isSwahili;
 
+    // Fast path: Get all verses for the book in one go
+    final Map<int, List<String>> fullMap =
+        isSwahili
+            ? await SwahiliBibleService.getVersesForBook(widget.bookName)
+            : await StrongBibleService.getVersesForBook(widget.bookName);
+
+    // Apply filtering based on search query
     final Map<int, List<String>> filteredMap = {};
 
     for (final chapter in chapters) {
-      List<String> verses;
+      if (!fullMap.containsKey(chapter)) continue;
 
-      if (isSwahili) {
-        final verseObjs = await SwahiliBibleService.getVerses(
-          widget.bookName,
-          chapter,
-        );
-        verses =
-            verseObjs
-                .map((v) => '${v['verse_number']}. ${v['verse_text']}')
-                .toList();
-      } else {
-        verses = await StrongBibleService.getVersesForBookChapter(
-          widget.bookName,
-          chapter,
-        );
-      }
+      final verses = fullMap[chapter]!;
 
       if (_chapterQuery.isNotEmpty &&
           _verseQuery.isEmpty &&
@@ -123,8 +116,18 @@ class _BookPageState extends State<BookPage> {
       } else {
         final filteredVerses =
             verses.where((v) => _verseMatches(v, chapter)).toList();
-        filteredMap[chapter] = filteredVerses;
+        if (filteredVerses.isNotEmpty) {
+          filteredMap[chapter] = filteredVerses;
+        } else if (_chapterQuery.isEmpty && _verseQuery.isEmpty) {
+          // If no search query, show all verses
+          filteredMap[chapter] = verses;
+        }
       }
+    }
+
+    // Ensure we handle the "show all" case correctly if search is empty
+    if (_chapterQuery.isEmpty && _verseQuery.isEmpty) {
+      return fullMap;
     }
 
     return filteredMap;
@@ -378,6 +381,7 @@ class _BookPageState extends State<BookPage> {
                                         );
 
                                     return GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
                                       onLongPress: () {
                                         HapticFeedback.heavyImpact();
                                         highlightsProvider.toggleHighlight(
@@ -408,16 +412,41 @@ class _BookPageState extends State<BookPage> {
                                           ),
                                         );
                                       },
-                                      child: Container(
-                                        color:
+                                      child: AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        curve: Curves.easeInOut,
+                                        margin:
                                             isHighlighted
-                                                ? const Color(
-                                                  0xFFFFD700,
-                                                ).withValues(alpha: 0.2)
-                                                : Colors.transparent,
+                                                ? const EdgeInsets.symmetric(
+                                                  vertical: 4.0,
+                                                  horizontal: 8.0,
+                                                )
+                                                : EdgeInsets.zero,
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 8.0,
-                                          horizontal: 24.0,
+                                          horizontal: 16.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isHighlighted
+                                                  ? const Color(
+                                                    0xFFFFD700,
+                                                  ).withValues(alpha: 0.2)
+                                                  : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border:
+                                              isHighlighted
+                                                  ? const Border(
+                                                    left: BorderSide(
+                                                      color: Color(0xFFFFD700),
+                                                      width: 4,
+                                                    ),
+                                                  )
+                                                  : null,
                                         ),
                                         child: Row(
                                           crossAxisAlignment:
@@ -428,20 +457,29 @@ class _BookPageState extends State<BookPage> {
                                                 width: 30,
                                                 child: Text(
                                                   verseNum,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall
-                                                      ?.copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onSurface
-                                                            .withValues(
-                                                              alpha: 0.7,
-                                                            ),
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14,
-                                                      ),
+                                                  style: Theme.of(
+                                                    context,
+                                                  ).textTheme.titleSmall?.copyWith(
+                                                    color:
+                                                        isHighlighted
+                                                            ? (Theme.of(
+                                                                      context,
+                                                                    ).brightness ==
+                                                                    Brightness
+                                                                        .dark
+                                                                ? Colors
+                                                                    .amber[100]
+                                                                : Colors
+                                                                    .brown[900])
+                                                            : Theme.of(context)
+                                                                .colorScheme
+                                                                .onSurface
+                                                                .withValues(
+                                                                  alpha: 0.7,
+                                                                ),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
                                                   textAlign: TextAlign.end,
                                                 ),
                                               ),
@@ -450,17 +488,26 @@ class _BookPageState extends State<BookPage> {
                                             Expanded(
                                               child: Text(
                                                 verseContent,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.copyWith(
-                                                      color:
-                                                          Theme.of(context)
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodyMedium?.copyWith(
+                                                  color:
+                                                      isHighlighted
+                                                          ? (Theme.of(
+                                                                    context,
+                                                                  ).brightness ==
+                                                                  Brightness
+                                                                      .dark
+                                                              ? Colors
+                                                                  .amber[100]
+                                                              : Colors
+                                                                  .brown[900])
+                                                          : Theme.of(context)
                                                               .colorScheme
                                                               .onSurface,
-                                                      fontSize: fontSize,
-                                                      height: 1.6,
-                                                    ),
+                                                  fontSize: fontSize,
+                                                  height: 1.6,
+                                                ),
                                               ),
                                             ),
                                           ],

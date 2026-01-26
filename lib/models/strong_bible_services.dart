@@ -75,4 +75,34 @@ class StrongBibleService {
     await box.put(key, result);
     return result;
   }
+
+  static Future<Map<int, List<String>>> getVersesForBook(
+    String bookName,
+  ) async {
+    final box = Hive.box('bible_data');
+    final key = 'en_book_verses_$bookName';
+
+    if (box.containsKey(key)) {
+      final Map<dynamic, dynamic> cached = box.get(key);
+      // specific casting to ensure correct types
+      return cached.map(
+        (k, v) => MapEntry(k as int, (v as List).cast<String>()),
+      );
+    }
+
+    final verses = await _loadVerses();
+    final Map<int, List<String>> result = {};
+
+    // Single pass optimization
+    for (var verse in verses) {
+      if (verse['book_name'] == bookName) {
+        final chapter = verse['chapter'] as int;
+        final text = '${verse['verse']}. ${verse['text']}';
+        result.putIfAbsent(chapter, () => []).add(text);
+      }
+    }
+
+    await box.put(key, result);
+    return result;
+  }
 }

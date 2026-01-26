@@ -401,36 +401,106 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text(
-                  'Bible minimalist',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 3,
-                  ),
+                // Premium Header
+                Column(
+                  children: [
+                    Text(
+                      'BIBLE',
+                      style: AppTheme.bodyStyle.copyWith(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      'MINIMALIST',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        letterSpacing: 6,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Version 1.0.0',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                const SizedBox(height: 16),
+                // Version Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ).colorScheme.onSurface.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  child: Text(
+                    'v1.0.0',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  isSwahili
-                      ? 'Hii ni biblia ya lugha mbili iliyoundwa kwa ajili ya usomaji rahisi na tulivu. Lengo letu ni kuhakikisha neno la Mungu linafika kwa kila mmoja bila vikwazo.'
-                      : 'A bilingual minimalist Bible app designed for focus and clarity. Our goal is to make the Word of God accessible to everyone in a simple, distraction-free environment.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+                const SizedBox(height: 32),
+                // Description Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.8),
-                    fontSize: 16,
-                    height: 1.5,
+                    ).colorScheme.onSurface.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    ),
                   ),
+                  child: Text(
+                    isSwahili
+                        ? 'Hii ni biblia ya lugha mbili iliyoundwa kwa ajili ya usomaji rahisi na tulivu. Lengo letu ni kuhakikisha neno la Mungu linafika kwa kila mmoja bila vikwazo.'
+                        : 'A bilingual minimalist Bible app designed for focus and clarity. Our goal is to make the Word of God accessible to everyone in a simple, distraction-free environment.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.8),
+                      fontSize: 15,
+                      height: 1.6,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                // Social Links / Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _SocialButton(
+                      icon: Icons.language,
+                      onTap: () {}, // Add URL logic later
+                    ),
+                    const SizedBox(width: 16),
+                    _SocialButton(
+                      icon: Icons.share_outlined,
+                      onTap: () {}, // Add Share logic
+                    ),
+                    const SizedBox(width: 16),
+                    _SocialButton(
+                      icon: Icons.mail_outline,
+                      onTap: () {}, // Add Email logic
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 32),
                 Text(
@@ -438,8 +508,9 @@ class SettingsPage extends StatelessWidget {
                   style: TextStyle(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+                    ).colorScheme.onSurface.withValues(alpha: 0.3),
                     fontSize: 12,
+                    letterSpacing: 1,
                   ),
                 ),
               ],
@@ -609,6 +680,43 @@ class _LanguageOption extends StatelessWidget {
                 size: 20,
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _SocialButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.05),
+          border: Border.all(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+          size: 24,
         ),
       ),
     );

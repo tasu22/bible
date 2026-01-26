@@ -6,6 +6,7 @@ class Highlight {
   final String verseNumber;
   final String verseText;
   final bool isSwahili;
+  final String? note;
 
   Highlight({
     required this.bookName,
@@ -13,7 +14,26 @@ class Highlight {
     required this.verseNumber,
     required this.verseText,
     required this.isSwahili,
+    this.note,
   });
+
+  Highlight copyWith({
+    String? bookName,
+    int? chapter,
+    String? verseNumber,
+    String? verseText,
+    bool? isSwahili,
+    String? note,
+  }) {
+    return Highlight(
+      bookName: bookName ?? this.bookName,
+      chapter: chapter ?? this.chapter,
+      verseNumber: verseNumber ?? this.verseNumber,
+      verseText: verseText ?? this.verseText,
+      isSwahili: isSwahili ?? this.isSwahili,
+      note: note ?? this.note,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -22,6 +42,7 @@ class Highlight {
       'verseNumber': verseNumber,
       'verseText': verseText,
       'isSwahili': isSwahili,
+      'note': note,
     };
   }
 
@@ -32,6 +53,7 @@ class Highlight {
       verseNumber: map['verseNumber'],
       verseText: map['verseText'],
       isSwahili: map['isSwahili'],
+      note: map['note'],
     );
   }
 
@@ -48,7 +70,8 @@ class Highlight {
         other.bookName == bookName &&
         other.chapter == chapter &&
         other.verseNumber == verseNumber &&
-        other.isSwahili == isSwahili;
+        other.isSwahili == isSwahili &&
+        other.note == note;
   }
 
   @override
@@ -56,6 +79,7 @@ class Highlight {
     return bookName.hashCode ^
         chapter.hashCode ^
         verseNumber.hashCode ^
-        isSwahili.hashCode;
+        isSwahili.hashCode ^
+        note.hashCode;
   }
 }

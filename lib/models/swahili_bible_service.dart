@@ -94,4 +94,41 @@ class SwahiliBibleService {
     await box.put(key, result);
     return result;
   }
+
+  static Future<Map<int, List<String>>> getVersesForBook(
+    String bookName,
+  ) async {
+    final box = Hive.box('bible_data');
+    final key = 'sw_book_verses_$bookName';
+
+    if (box.containsKey(key)) {
+      final Map<dynamic, dynamic> cached = box.get(key);
+      return cached.map(
+        (k, v) => MapEntry(k as int, (v as List).cast<String>()),
+      );
+    }
+
+    final data = await _loadData();
+    final book = (data['BIBLEBOOK'] as List<dynamic>).firstWhere(
+      (b) => b['book_name'] == bookName,
+      orElse: () => null,
+    );
+
+    if (book == null) return {};
+
+    final Map<int, List<String>> result = {};
+    final chapters = book['CHAPTER'] as List<dynamic>;
+
+    for (var c in chapters) {
+      final chapterNum = int.parse(c['chapter_number']);
+      final verses = c['VERSES'] as List<dynamic>;
+      result[chapterNum] =
+          verses
+              .map((v) => '${v['verse_number']}. ${v['verse_text']}')
+              .toList();
+    }
+
+    await box.put(key, result);
+    return result;
+  }
 }

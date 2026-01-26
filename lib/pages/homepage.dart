@@ -78,7 +78,7 @@ class _HomepageState extends State<Homepage> {
                     alpha: 0.95,
                   ),
                   surfaceTintColor: Colors.transparent,
-                  expandedHeight: MediaQuery.of(context).padding.top + 20.0,
+                  expandedHeight: MediaQuery.of(context).padding.top + 80.0,
                   toolbarHeight: 0.0,
                   automaticallyImplyLeading: false,
                   systemOverlayStyle: SystemUiOverlayStyle(
