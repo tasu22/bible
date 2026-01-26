@@ -5,29 +5,31 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   // Colors
   static const Color darkGreen = Color(0xFF1D503A);
+  static const Color deepGreen = Color(0xFF0A2316);
   static const Color offWhite = Color(0xFFFAF5EE);
+  static const Color emergr = Color(0xFF2D6A4F);
 
   // Lexend for Titles/Headings
   static TextStyle get titleStyle => GoogleFonts.lexend();
 
   // Playfair Display for Body/Verses
-  static TextStyle get bodyStyle => GoogleFonts.playfairDisplay();
+  static TextStyle get bodyStyle => GoogleFonts.playfair();
 
   static ThemeData getLightTheme() {
     return _buildTheme(
       brightness: Brightness.light,
       background: offWhite,
       foreground: darkGreen,
-      accent: const Color(0xFF2D6A4F),
+      accent: darkGreen,
     );
   }
 
   static ThemeData getDarkTheme() {
     return _buildTheme(
       brightness: Brightness.dark,
-      background: darkGreen,
+      background: deepGreen,
       foreground: offWhite,
-      accent: const Color(0xFF2D6A4F),
+      accent: emergr,
     );
   }
 

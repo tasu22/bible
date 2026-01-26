@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/homepage.dart';
+import 'providers/bible_provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/highlights_provider.dart';
@@ -17,6 +18,7 @@ void main() async {
   // Open Hive boxes
   await Hive.openBox('settings');
   await Hive.openBox('highlights');
+  await Hive.openBox('bible_data');
 
   final languageProvider = LanguageProvider();
   languageProvider.loadLanguage(); // Make sure this is public
@@ -40,6 +42,7 @@ void main() async {
         ChangeNotifierProvider.value(value: languageProvider),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => HighlightsProvider()),
+        ChangeNotifierProvider(create: (_) => BibleProvider()),
       ],
       child: const MyApp(),
     ),

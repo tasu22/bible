@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../constants/bible_constants.dart';
 
 class StrongBibleService {
   static List<dynamic>? _cachedVerses;
@@ -9,22 +12,30 @@ class StrongBibleService {
     final String jsonString = await rootBundle.loadString(
       'assets/bibles/english.json',
     );
-    _cachedVerses = json.decode(jsonString);
+    _cachedVerses = await compute(_parseJson, jsonString);
     return _cachedVerses!;
   }
 
+  static List<dynamic> _parseJson(String jsonString) {
+    return json.decode(jsonString);
+  }
+
   static Future<List<String>> getBookNames() async {
-    final verses = await _loadVerses();
-    final bookSet = <String>{};
-    for (var verse in verses) {
-      bookSet.add(verse['book_name']);
-    }
-    final List<String> bookNames = bookSet.toList();
-    bookNames.sort();
-    return bookNames;
+    return [
+      ...BibleConstants.oldTestamentOrderEn,
+      ...BibleConstants.newTestamentOrderEn,
+    ];
   }
 
   static Future<List<int>> getChaptersForBook(String bookName) async {
+    final box = Hive.box('bible_data');
+    final key = 'en_chapters_$bookName';
+
+    if (box.containsKey(key)) {
+      final List<dynamic> cached = box.get(key);
+      return cached.cast<int>();
+    }
+
     final verses = await _loadVerses();
     final chapterSet = <int>{};
     for (var verse in verses) {
@@ -34,6 +45,8 @@ class StrongBibleService {
     }
     final List<int> chapters = chapterSet.toList();
     chapters.sort();
+
+    await box.put(key, chapters);
     return chapters;
   }
 
@@ -41,13 +54,25 @@ class StrongBibleService {
     String bookName,
     int chapter,
   ) async {
+    final box = Hive.box('bible_data');
+    final key = 'en_verses_${bookName}_$chapter';
+
+    if (box.containsKey(key)) {
+      final List<dynamic> cached = box.get(key);
+      return cached.cast<String>();
+    }
+
     final verses = await _loadVerses();
-    return verses
-        .where(
-          (verse) =>
-              verse['book_name'] == bookName && verse['chapter'] == chapter,
-        )
-        .map<String>((verse) => '${verse['verse']}. ${verse['text']}')
-        .toList();
+    final result =
+        verses
+            .where(
+              (verse) =>
+                  verse['book_name'] == bookName && verse['chapter'] == chapter,
+            )
+            .map<String>((verse) => '${verse['verse']}. ${verse['text']}')
+            .toList();
+
+    await box.put(key, result);
+    return result;
   }
 }

@@ -1,17 +1,16 @@
-import 'package:bible/models/strong_bible_services.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:bible/providers/language_provider.dart';
+import 'package:bible/providers/bible_provider.dart';
 
-import '../models/swahili_bible_service.dart';
 import '../constants/bible_constants.dart';
 import '../utils/bible_utils.dart';
 import '../widgets/bible_book_list.dart';
 import '../widgets/bible_search_bar.dart';
 import 'settings_page.dart';
 import 'highlights_page.dart';
+import '../theme.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -22,8 +21,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   String _searchQuery = '';
-  bool _isSearchExpanded = false; // Initially collapsed (FAB)
-  late Future<List<String>> _booksFuture;
+  bool _isSearchExpanded = false;
   bool? _lastIsSwahili;
 
   @override
@@ -32,21 +30,19 @@ class _HomepageState extends State<Homepage> {
     final isSwahili = Provider.of<LanguageProvider>(context).isSwahili;
     if (_lastIsSwahili != isSwahili) {
       _lastIsSwahili = isSwahili;
-      _booksFuture =
-          isSwahili
-              ? SwahiliBibleService.getBookNames()
-              : StrongBibleService.getBookNames();
+      // Defer the provider call to the next frame to avoid build conflicts
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<BibleProvider>(context, listen: false).loadBooks(isSwahili);
+      });
     }
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isSwahili = Provider.of<LanguageProvider>(context).isSwahili;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isSwahili = languageProvider.isSwahili;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     final oldTestamentOrder =
         isSwahili
@@ -58,7 +54,8 @@ class _HomepageState extends State<Homepage> {
             : BibleConstants.newTestamentOrderEn;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      extendBodyBehindAppBar: true, // Allow gradient to show behind status bar
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
@@ -70,14 +67,16 @@ class _HomepageState extends State<Homepage> {
         },
         child: Stack(
           children: [
+            // Main content
             CustomScrollView(
               slivers: [
                 SliverAppBar(
                   pinned: true,
                   floating: true,
                   snap: true,
-                  primary: true,
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: theme.scaffoldBackgroundColor.withValues(
+                    alpha: 0.95,
+                  ),
                   surfaceTintColor: Colors.transparent,
                   expandedHeight: MediaQuery.of(context).padding.top + 20.0,
                   toolbarHeight: 0.0,
@@ -85,14 +84,25 @@ class _HomepageState extends State<Homepage> {
                   systemOverlayStyle: SystemUiOverlayStyle(
                     statusBarColor: Colors.transparent,
                     statusBarIconBrightness:
-                        Theme.of(context).brightness == Brightness.dark
+                        theme.brightness == Brightness.dark
                             ? Brightness.light
                             : Brightness.dark,
-                    statusBarBrightness: Theme.of(context).brightness,
+                    statusBarBrightness: theme.brightness,
                   ),
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            theme.scaffoldBackgroundColor,
+                            theme.scaffoldBackgroundColor.withValues(
+                              alpha: 0.8,
+                            ),
+                          ],
+                        ),
+                      ),
                       child: Padding(
                         padding: EdgeInsets.only(
                           top: MediaQuery.of(context).padding.top + 8.0,
@@ -105,28 +115,40 @@ class _HomepageState extends State<Homepage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  isSwahili ? 'BIBLIA' : 'BIBLE',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleLarge?.copyWith(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2.0,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isSwahili ? 'NENO LA' : 'WORD OF',
+                                      style: theme.textTheme.labelMedium
+                                          ?.copyWith(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 4.0,
+                                            color: colorScheme.onSurface
+                                                .withValues(alpha: 0.8),
+                                          ),
+                                    ),
+                                    Text(
+                                      isSwahili ? 'MUNGU' : 'GOD',
+                                      style: AppTheme.bodyStyle.copyWith(
+                                        // Playfair Display
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.0,
+                                        color: colorScheme.onSurface,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Row(
                                   children: [
                                     IconButton(
                                       icon: Icon(
                                         Icons.bookmark_outline_rounded,
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                        size: 34,
+                                        color: colorScheme.onSurface,
+                                        size: 30,
                                       ),
                                       onPressed: () {
                                         HapticFeedback.mediumImpact();
@@ -143,11 +165,8 @@ class _HomepageState extends State<Homepage> {
                                     IconButton(
                                       icon: Icon(
                                         Icons.settings,
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                        size: 34,
+                                        color: colorScheme.onSurface,
+                                        size: 30,
                                       ),
                                       onPressed: () {
                                         HapticFeedback.mediumImpact();
@@ -171,41 +190,64 @@ class _HomepageState extends State<Homepage> {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: FutureBuilder<List<String>>(
-                    future: _booksFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
+                  child: Consumer<BibleProvider>(
+                    builder: (context, bibleProvider, child) {
+                      if (bibleProvider.isLoading) {
                         return const SizedBox(
-                          height: 100,
+                          height: 200,
                           child: Center(child: CircularProgressIndicator()),
                         );
-                      } else if (snapshot.hasError) {
+                      }
+
+                      if (bibleProvider.error != null) {
                         return SizedBox(
-                          height: 100,
+                          height: 200,
                           child: Center(
-                            child: Text(
-                              isSwahili
-                                  ? 'Kosa la kupakua vitabu'
-                                  : 'Error loading books',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                        );
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return SizedBox(
-                          height: 100,
-                          child: Center(
-                            child: Text(
-                              isSwahili
-                                  ? 'Hakuna vitabu vilivyopatikana'
-                                  : 'No books found',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.cloud_off_rounded,
+                                  size: 48,
+                                  color: colorScheme.error,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  isSwahili
+                                      ? 'Kosa la kupakua vitabu'
+                                      : 'Error loading books',
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    bibleProvider.loadBooks(isSwahili);
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                  label: Text(
+                                    isSwahili ? 'Jaribu Tena' : 'Retry',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
                       }
 
-                      final allBooks = snapshot.data!;
+                      final allBooks = bibleProvider.books;
+                      if (allBooks.isEmpty) {
+                        return SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: Text(
+                              isSwahili
+                                  ? 'Hakuna vitabu vilivyopatikana'
+                                  : 'No books found',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        );
+                      }
 
                       // Filter books by search query
                       List<String> filteredBooks = allBooks;
@@ -231,34 +273,39 @@ class _HomepageState extends State<Homepage> {
                         newTestamentOrder,
                       );
 
-                      return IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: BibleBookList(
-                                title:
-                                    isSwahili ? 'Agano Kale' : 'Old Testament',
-                                books: oldTestamentBooks,
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: IntrinsicHeight(
+                          key: ValueKey(_searchQuery),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _buildBookListSection(
+                                  context,
+                                  isSwahili ? 'Agano Kale' : 'Old Testament',
+                                  oldTestamentBooks,
+                                ),
                               ),
-                            ),
-                            VerticalDivider(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.3),
-                              thickness: 1,
-                              width: 32,
-                              indent: 20,
-                              endIndent: 20,
-                            ),
-                            Expanded(
-                              child: BibleBookList(
-                                title:
-                                    isSwahili ? 'Agano Jipya' : 'New Testament',
-                                books: newTestamentBooks,
+                              Container(
+                                width: 1,
+                                height: double.infinity,
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 20,
+                                ),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.1,
+                                ),
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: _buildBookListSection(
+                                  context,
+                                  isSwahili ? 'Agano Jipya' : 'New Testament',
+                                  newTestamentBooks,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -269,6 +316,8 @@ class _HomepageState extends State<Homepage> {
                 ),
               ],
             ),
+
+            // Search Bar
             Positioned(
               bottom: 32,
               right: 16,
@@ -297,6 +346,23 @@ class _HomepageState extends State<Homepage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBookListSection(
+    BuildContext context,
+    String title,
+    List<String> books,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).cardColor.withValues(alpha: 0.03), // Very subtle background
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: BibleBookList(title: title, books: books),
     );
   }
 }

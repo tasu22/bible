@@ -1,0 +1,230 @@
+{
+  "recommendations": [
+    {
+      "category": "Visual & Interaction Design",
+      "items": [
+        {
+          "title": "AppBar Header",
+          "current": "Large Playfair font dominates the bar",
+          "suggestion": "Tone down the size of 'GOD' to ~24pt, increase 'WORD OF' to 14pt semi‑bold, add subtle gradient/glass‑morphism behind text",
+          "priority": "high"
+        },
+        {
+          "title": "Book List Tiles",
+          "current": "Lexend titleMedium at 14pt, solid background",
+          "suggestion": "Add hover/press ripple with accent color, prepend a small book icon, use soft elevation on press for tactile feel",
+          "priority": "medium"
+        },
+        {
+          "title": "Color Palette",
+          "current": "Dark‑green / off‑white scheme",
+          "suggestion": "Introduce a secondary accent (warm gold/teal) for highlights, use alpha‑blended surfaces for glass effect",
+          "priority": "medium"
+        },
+        {
+          "title": "Typography Consistency",
+          "current": "Playfair for body, Lexend for titles",
+          "suggestion": "Reserve Playfair for verse content only, use Lexend (or similar sans‑serif) for all UI labels, define a global TextTheme in AppTheme",
+          "priority": "high"
+        },
+        {
+          "title": "Responsive Layout",
+          "current": "Fixed paddings (16px) may look sparse on tablets",
+          "suggestion": "Switch to responsive spacing based on screen width, use Flex/Expanded for two‑column layout on home page",
+          "priority": "medium"
+        },
+        {
+          "title": "Dark‑Mode Polish",
+          "current": "Deep green background, some low‑contrast text",
+          "suggestion": "Verify WCAG AA contrast, use lighter surface for cards in dark mode",
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "category": "Navigation & UX Flow",
+      "items": [
+        {
+          "title": "Bottom Navigation Bar",
+          "suggestion": "Add persistent bottom bar with icons for Home, Search, Bookmarks, Settings",
+          "priority": "high"
+        },
+        {
+          "title": "Search Experience",
+          "suggestion": "Replace floating button expansion with full‑screen overlay, include cancel button and recent history",
+          "priority": "medium"
+        },
+        {
+          "title": "Book Detail Page",
+          "suggestion": "Add sticky header with book name and back button that fades on scroll",
+          "priority": "low"
+        },
+        {
+          "title": "Deep Linking",
+          "suggestion": "Support URLs like myapp://book/Genesis to open directly to a book",
+          "priority": "low"
+        },
+        {
+          "title": "Onboarding",
+          "suggestion": "Create short onboarding flow explaining theme toggle, search, bookmarks, using premium glass cards and micro‑animations",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "category": "State Management & Architecture",
+      "items": [
+        {
+          "title": "Provider Consolidation",
+          "suggestion": "Wrap all providers in a MultiProvider in main.dart; consider Riverpod or Bloc for future complexity",
+          "priority": "high"
+        },
+        {
+          "title": "Localization",
+          "suggestion": "Extract UI strings to ARB/JSON and use Intl for easy language addition",
+          "priority": "medium"
+        },
+        {
+          "title": "Theme Access",
+          "suggestion": "Create a ThemeProvider exposing AppTheme styles via a custom ThemeExtension to reduce boilerplate",
+          "priority": "low"
+        },
+        {
+          "title": "Async Loading",
+          "suggestion": "Use FutureBuilder/StreamBuilder with skeleton loaders for premium feel",
+          "priority": "medium"
+        },
+        {
+          "title": "Testing",
+          "suggestion": "Add unit tests for providers and widget tests for UI pages to catch regressions",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "category": "Performance & Optimization",
+      "items": [
+        {
+          "title": "Image Assets",
+          "suggestion": "Prefer flutter_svg for vector icons to keep bundle size low",
+          "priority": "low"
+        },
+        {
+          "title": "List Rendering",
+          "suggestion": "Replace spread map with ListView.builder and itemExtent for smoother scrolling",
+          "priority": "high"
+        },
+        {
+          "title": "Cache Bible Data",
+          "suggestion": "Persist downloaded book list in shared_preferences or Hive for offline launch",
+          "priority": "medium"
+        },
+        {
+          "title": "Lazy Loading",
+          "suggestion": "Load New Testament column only when it becomes visible (VisibilityDetector)",
+          "priority": "low"
+        },
+        {
+          "title": "Code Splitting",
+          "suggestion": "Enable deferred loading for heavy pages if targeting web",
+          "priority": "low"
+        }
+      ]
+    },
+    {
+      "category": "Accessibility",
+      "items": [
+        {
+          "title": "Semantic Labels",
+          "suggestion": "Add semanticsLabel to icons and buttons",
+          "priority": "high"
+        },
+        {
+          "title": "Dynamic Text Scaling",
+          "suggestion": "Multiply fontSize by MediaQuery.textScaleFactor",
+          "priority": "medium"
+        },
+        {
+          "title": "Tap Targets",
+          "suggestion": "Ensure interactive elements are at least 48×48 dp",
+          "priority": "high"
+        },
+        {
+          "title": "Contrast Checker",
+          "suggestion": "Run a contrast analyzer (e.g., flutter_lints) to meet WCAG",
+          "priority": "high"
+        },
+        {
+          "title": "Screen‑Reader Navigation",
+          "suggestion": "Provide meaningful tooltip/semanticLabel for theme toggle and navigation icons",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "category": "Future‑Ready Features",
+      "items": [
+        {
+          "title": "Bookmark / Favorite Books",
+          "suggestion": "Allow users to star books, store locally, and show a Favorites tab",
+          "priority": "medium"
+        },
+        {
+          "title": "Reading Progress",
+          "suggestion": "Persist last opened chapter per book and display progress bar on home page",
+          "priority": "low"
+        },
+        {
+          "title": "Audio Playback",
+          "suggestion": "Integrate just_audio for verse audio playback",
+          "priority": "low"
+        },
+        {
+          "title": "Sharing",
+          "suggestion": "Add Share button on book page to copy deep link or verse text",
+          "priority": "low"
+        },
+        {
+          "title": "Theming Customizer",
+          "suggestion": "Small screen where users can pick a primary accent color via a color picker",
+          "priority": "low"
+        },
+        {
+          "title": "Internationalization",
+          "suggestion": "Add more languages (French, Arabic) using the same translation keys",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "category": "Code‑base Clean‑up & Documentation",
+      "items": [
+        {
+          "title": "README",
+          "suggestion": "Add README with build instructions, architecture overview, design guidelines",
+          "priority": "high"
+        },
+        {
+          "title": "Docs Folder",
+          "suggestion": "Create docs/ with UI mockups (generated via generate_image) to version design decisions",
+          "priority": "medium"
+        },
+        {
+          "title": "Linting & Formatting",
+          "suggestion": "Enable flutter_lints and run flutter format .",
+          "priority": "high"
+        },
+        {
+          "title": "Separate UI from Logic",
+          "suggestion": "Move book‑list tile widget to its own file (bible_book_tile.dart)",
+          "priority": "medium"
+        },
+        {
+          "title": "Comment Key Sections",
+          "suggestion": "Add short comments above complex layout blocks (e.g., SliverAppBar gradient)",
+          "priority": "low"
+        }
+      ]
+    }
+  ]
+}

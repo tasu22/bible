@@ -137,7 +137,6 @@ class _BookPageState extends State<BookPage> {
     final fontSize = settingsProvider.fontSize;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: CustomScrollView(

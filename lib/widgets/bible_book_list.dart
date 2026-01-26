@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_outlined_button.dart';
+import 'package:flutter/services.dart';
 import '../pages/book_page.dart';
 
 class BibleBookList extends StatelessWidget {
@@ -50,23 +50,46 @@ class BibleBookList extends StatelessWidget {
               right: 16.0,
               bottom: 8.0,
             ),
-            child: CustomOutlinedButton(
-              onPressed: () {
-                FocusScope.of(context).unfocus();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BookPage(bookName: book),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                  HapticFeedback.mediumImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookPage(bookName: book),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
-                );
-              },
-              borderColor: Theme.of(context).colorScheme.onSurface,
-              child: Text(
-                book,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    book,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontSize: 14,
+                      letterSpacing: 0.5,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                 ),
               ),
             ),
