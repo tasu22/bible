@@ -36,6 +36,14 @@ void main() async {
       systemNavigationBarDividerColor: Colors.transparent,
     ),
   );
+
+  // Explicitly allow all orientations (Portrait and Landscape)
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   runApp(
     MultiProvider(
       providers: [
