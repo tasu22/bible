@@ -19,9 +19,9 @@ class BookPage extends StatefulWidget {
 }
 
 class _BookPageState extends State<BookPage> {
-  late Future<List<int>> _chaptersFuture = Future.value(
-    [],
-  ); // <-- Add this default
+  late Future<List<int>> _chaptersFuture = Future.value([]);
+  Future<Map<int, List<String>>>? _filteredVersesFuture;
+  List<int> _loadedChapters = [];
   final TextEditingController _chapterController = TextEditingController();
   final TextEditingController _verseController = TextEditingController();
   String _chapterQuery = '';
@@ -32,17 +32,27 @@ class _BookPageState extends State<BookPage> {
   @override
   void initState() {
     super.initState();
-    // Delay using context
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final langProvider = Provider.of<LanguageProvider>(
         context,
         listen: false,
       );
+      final future =
+          langProvider.isSwahili
+              ? SwahiliBibleService.getChapters(widget.bookName)
+              : StrongBibleService.getChaptersForBook(widget.bookName);
+
       setState(() {
-        _chaptersFuture =
-            langProvider.isSwahili
-                ? SwahiliBibleService.getChapters(widget.bookName)
-                : StrongBibleService.getChaptersForBook(widget.bookName);
+        _chaptersFuture = future;
+      });
+
+      // Once chapters load, compute initial filtered verses
+      future.then((chapters) {
+        if (!mounted) return;
+        setState(() {
+          _loadedChapters = chapters;
+          _filteredVersesFuture = _getFilteredVersesForChapters(chapters);
+        });
       });
     });
 
@@ -56,6 +66,10 @@ class _BookPageState extends State<BookPage> {
       setState(() {
         _chapterQuery = _chapterController.text.trim();
         _verseQuery = _verseController.text.trim();
+        if (_loadedChapters.isNotEmpty) {
+          _filteredVersesFuture =
+              _getFilteredVersesForChapters(_loadedChapters);
+        }
       });
     });
   }
@@ -283,9 +297,11 @@ class _BookPageState extends State<BookPage> {
 
                 final chapters = snapshot.data!;
                 return FutureBuilder<Map<int, List<String>>>(
-                  future: _getFilteredVersesForChapters(chapters),
+                  future: _filteredVersesFuture,
                   builder: (context, filteredSnapshot) {
-                    if (!filteredSnapshot.hasData) {
+                    if (filteredSnapshot.connectionState ==
+                            ConnectionState.waiting ||
+                        filteredSnapshot.data == null) {
                       return SliverFillRemaining(
                         child: Center(
                           child: CircularProgressIndicator(
@@ -295,10 +311,10 @@ class _BookPageState extends State<BookPage> {
                       );
                     }
 
-                    final filteredMap = filteredSnapshot.data!;
+                    final filteredMap = filteredSnapshot.data ?? {};
                     final visibleChapters =
                         chapters
-                            .where((c) => filteredMap[c]!.isNotEmpty)
+                            .where((c) => (filteredMap[c]?.isNotEmpty ?? false))
                             .toList();
 
                     if (visibleChapters.isEmpty) {
@@ -319,7 +335,7 @@ class _BookPageState extends State<BookPage> {
                     return SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final chapter = visibleChapters[index];
-                        final filteredVerses = filteredMap[chapter]!;
+                        final filteredVerses = filteredMap[chapter] ?? [];
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 24.0),

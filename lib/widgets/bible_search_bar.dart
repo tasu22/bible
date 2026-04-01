@@ -31,6 +31,13 @@ class _BibleSearchBarState extends State<BibleSearchBar> {
     if (oldWidget.isExpanded && !widget.isExpanded) {
       _controller.clear();
       _focusNode.unfocus();
+    } else if (!oldWidget.isExpanded && widget.isExpanded) {
+      // If it's being expanded, request focus after a small delay to allow animation
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_focusNode.canRequestFocus) {
+          _focusNode.requestFocus();
+        }
+      });
     }
   }
 
@@ -95,7 +102,7 @@ class _BibleSearchBarState extends State<BibleSearchBar> {
                             child: TextField(
                               controller: _controller,
                               focusNode: _focusNode,
-                              autofocus: true,
+                              autofocus: widget.isExpanded,
                               onChanged: widget.onSearchChanged,
                               style: Theme.of(context).textTheme.titleMedium,
                               decoration: InputDecoration(
