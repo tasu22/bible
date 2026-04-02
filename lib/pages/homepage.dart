@@ -196,7 +196,9 @@ class _HomepageState extends State<Homepage> {
                   delegate: _StickyHeaderDelegate(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
+                        color: theme.scaffoldBackgroundColor.withValues(
+                          alpha: 0.95,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: theme.scaffoldBackgroundColor,
@@ -211,11 +213,21 @@ class _HomepageState extends State<Homepage> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
-                            child: _buildColumnHeader(context, isSwahili ? 'Agano Kale' : 'Old Testament'),
+                            child: _buildColumnHeader(
+                              context,
+                              isSwahili ? 'Agano Kale' : 'Old Testament',
+                            ),
                           ),
-                          Container(width: 1, margin: const EdgeInsets.symmetric(horizontal: 8), color: Colors.transparent),
+                          Container(
+                            width: 1,
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            color: Colors.transparent,
+                          ),
                           Expanded(
-                            child: _buildColumnHeader(context, isSwahili ? 'Agano Jipya' : 'New Testament'),
+                            child: _buildColumnHeader(
+                              context,
+                              isSwahili ? 'Agano Jipya' : 'New Testament',
+                            ),
                           ),
                         ],
                       ),
@@ -227,7 +239,11 @@ class _HomepageState extends State<Homepage> {
                     builder: (context) {
                       if (bibleProvider.isLoading) {
                         return Padding(
-                          padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                          padding: const EdgeInsets.only(
+                            top: 8.0,
+                            left: 8.0,
+                            right: 8.0,
+                          ),
                           child: _buildShimmerLoading(context),
                         );
                       }
@@ -421,7 +437,9 @@ class _HomepageState extends State<Homepage> {
             height: 2,
             width: 30, // Small centered underline instead of full width
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -455,8 +473,9 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildShimmerColumn() {
     return Column(
-      children: List.generate(15, (index) =>
-        Padding(
+      children: List.generate(
+        15,
+        (index) => Padding(
           padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
           child: Container(
             height: 48,
@@ -465,7 +484,7 @@ class _HomepageState extends State<Homepage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-        )
+        ),
       ),
     );
   }
@@ -483,7 +502,11 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox.expand(child: child);
   }
 
