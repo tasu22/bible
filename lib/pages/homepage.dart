@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:bible/providers/language_provider.dart';
 import 'package:bible/providers/bible_provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../constants/bible_constants.dart';
 import '../utils/bible_utils.dart';
@@ -52,6 +53,7 @@ class _HomepageState extends State<Homepage> {
         isSwahili
             ? BibleConstants.newTestamentOrderSw
             : BibleConstants.newTestamentOrderEn;
+    final bibleProvider = Provider.of<BibleProvider>(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true, // Allow gradient to show behind status bar
@@ -189,13 +191,44 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
                 ),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _StickyHeaderDelegate(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.scaffoldBackgroundColor,
+                            blurRadius: 4,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: _buildColumnHeader(context, isSwahili ? 'Agano Kale' : 'Old Testament'),
+                          ),
+                          Container(width: 1, margin: const EdgeInsets.symmetric(horizontal: 8), color: Colors.transparent),
+                          Expanded(
+                            child: _buildColumnHeader(context, isSwahili ? 'Agano Jipya' : 'New Testament'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 SliverToBoxAdapter(
-                  child: Consumer<BibleProvider>(
-                    builder: (context, bibleProvider, child) {
+                  child: Builder(
+                    builder: (context) {
                       if (bibleProvider.isLoading) {
-                        return const SizedBox(
-                          height: 200,
-                          child: Center(child: CircularProgressIndicator()),
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                          child: _buildShimmerLoading(context),
                         );
                       }
 
@@ -283,7 +316,7 @@ class _HomepageState extends State<Homepage> {
                               Expanded(
                                 child: _buildBookListSection(
                                   context,
-                                  isSwahili ? 'Agano Kale' : 'Old Testament',
+                                  '',
                                   oldTestamentBooks,
                                 ),
                               ),
@@ -300,7 +333,7 @@ class _HomepageState extends State<Homepage> {
                               Expanded(
                                 child: _buildBookListSection(
                                   context,
-                                  isSwahili ? 'Agano Jipya' : 'New Testament',
+                                  '',
                                   newTestamentBooks,
                                 ),
                               ),
@@ -364,5 +397,104 @@ class _HomepageState extends State<Homepage> {
       ),
       child: BibleBookList(title: title, books: books),
     );
+  }
+
+  Widget _buildColumnHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.5,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            height: 2,
+            width: 30, // Small centered underline instead of full width
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Shimmer.fromColors(
+      baseColor: colorScheme.onSurface.withValues(alpha: 0.1),
+      highlightColor: colorScheme.onSurface.withValues(alpha: 0.05),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildShimmerColumn()),
+            Container(
+              width: 1,
+              height: double.infinity,
+              margin: const EdgeInsets.symmetric(vertical: 20),
+              color: colorScheme.onSurface.withValues(alpha: 0.1),
+            ),
+            Expanded(child: _buildShimmerColumn()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerColumn() {
+    return Column(
+      children: List.generate(15, (index) =>
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        )
+      ),
+    );
+  }
+}
+
+class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double minHeight;
+  final double maxHeight;
+
+  _StickyHeaderDelegate({
+    required this.child,
+    this.minHeight = 50.0,
+    this.maxHeight = 50.0,
+  });
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  bool shouldRebuild(covariant _StickyHeaderDelegate oldDelegate) {
+    return child != oldDelegate.child;
   }
 }
